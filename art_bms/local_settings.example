@@ -1,0 +1,28 @@
+
+ADMINS = ( ('Your Name', 'you@example.com'), )
+MANAGERS = ADMINS
+
+BACNET_BIN_DIR = '/usr/local/src/bacnet-stack-0.5.3/bin'
+
+LOGGING_NAME = '/tmp/art-bms.log'
+
+SECRET_KEY = 'somesecretstring'
+
+SCHEDULED_TASKS = []
+
+PRODUCTION = False
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+
+#CACHE_BACKEND = 'dummy:///'
+CACHE_BACKEND = 'locmem:///'
+
+DATABASE_ENGINE = 'postgresql_psycopg2' 
+DATABASE_NAME = 'artbms'
+DATABASE_USER = 'postgres'
+DATABASE_PASSWORD = ''
+DATABASE_HOST = ''
+DATABASE_PORT = ''
+
+import logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s %(levelname)s %(message)s', filename=LOGGING_NAME, filemode = 'w')
