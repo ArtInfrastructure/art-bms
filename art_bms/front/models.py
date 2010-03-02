@@ -8,7 +8,6 @@ import datetime, calendar
 import random
 import time
 import re
-import feedparser
 import unicodedata
 import traceback
 import logging
