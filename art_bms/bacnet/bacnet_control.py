@@ -16,6 +16,16 @@ class BacnetControl:
 	def __init__(self, bin_dir_path):
 		self.bin_dir_path = bin_dir_path
 
+	def run_command(self, args):
+		proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+		output = ''
+		while True:
+			next_line = proc.stdout.readline()
+			if next_line == '' and proc.poll() != None: break
+			output = '%s%s' % (output, next_line)
+		proc.wait()
+		return (proc.returncode, output)
+
 	def get_bin_path(self, bin_name):
 		bin_name = '%s%s' % (bin_name, settings.BACNET_EXECUTABLE_EXTENSION)
 		bin_path = os.path.join(self.bin_dir_path, bin_name)
@@ -27,20 +37,16 @@ class BacnetControl:
 		"""Returns the Present-Value of an Analog Output property"""
 		bin_path = self.get_bin_path('bacrp')
 		# bacrp device-instance object-type object-instance property [index]
+		# bacrp 100 1 23 1 85
 		args = [bin_path, '%s' % int(device_id), '1', '%s' % int(property_id), '85']
-		retval = subprocess.call(args)
-		print retval
-		return 0
+		return self.run_command(args)
 
 	def write_analog_output_int(self, device_id, property_id, value):
 		"""Returns the Present-Value of an Analog Output property"""
 		bin_path = self.get_bin_path('bacwp')
-		if bin_path == None: return None
 		# bacwp device-instance object-type object-instance property priority index tag value [tag value...]
 		args = [bin_path, '%s' % int(device_id), '1', '%s' % int(property_id), '85', '16', '-1', '2', '%s' % int(value)]
-		retval = subprocess.call(args)
-		print retval
-		return 0
+		return self.run_command(args)
 
 def main():
 	try:
@@ -52,7 +58,6 @@ def main():
 		return
 
 	control = BacnetControl(settings.BACNET_BIN_DIR)
-
 	if action == 'read-ao':
 		print control.read_analog_output(device_id, property_id)
 	elif action == 'write-ao':

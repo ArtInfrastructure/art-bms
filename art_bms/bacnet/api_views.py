@@ -46,7 +46,8 @@ def device_property(request, device_id, property_id):
 		new_value = request.POST.get('value', None)
 		if new_value.isdigit():
 			try:
-				control.write_analog_output_int(device_id, property_id, int(new_value))
+				return_code, value = control.write_analog_output_int(device_id, property_id, int(new_value))
+				if return_code != 0: raise IOError(value)
 			except:
 				logging.exception('Could not write the posted value (%s) for bacnet device %s property %s' % (new_value, device_id, property_id))
 				return HttpResponseServerError('Could not write the posted value (%s) for bacnet device %s property %s\n\n%s' % (new_value, device_id, property_id, sys.exc_info()[1]))
@@ -54,10 +55,11 @@ def device_property(request, device_id, property_id):
 			return HttpResponseServerError('Could not write the posted value (%s) for bacnet device %s property %s: unsupported value format' % (new_value, device_id, property_id))
 			
 	try:
-		value = control.read_analog_output(device_id, property_id)
+		return_code, value = control.read_analog_output(device_id, property_id)
+		if return_code != 0: raise IOError(value)
 	except:
 		logging.exception('Could not read the analog output for bacnet device %s property %s' % (device_id, property_id))
 		return HttpResponseServerError('Could not read the analog output for bacnet device %s property %s\n\n%s' % (device_id, property_id, sys.exc_info()[1]))
 
-	return HttpResponse(value, content_type="text/plain")
+	return HttpResponse(('%s' % value).strip(), content_type="text/plain")
 
