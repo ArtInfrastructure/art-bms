@@ -1,12 +1,17 @@
 {% extends "base.html" %}
 
-{% block sub-title %}BACnet | {% endblock %}
+{% block sub-title %}Device {{ device_id}}, Property {{ property_id }} | {% endblock %}
 
 {% block style %}
 {% endblock %}
 
 {% block content%}
-<h1>BACnet:</h1>
+<h1>Device {{ device_id}}, Property {{ property_id }}:</h1>
+
+<form action="." method="post">
+{{ device_property_form }}
+<input type="submit" value="change property" />
+</form>
 
 {% endblock %}
 

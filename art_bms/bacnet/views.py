@@ -25,7 +25,37 @@ from django.template.loader import render_to_string
 from django.utils import feedgenerator
 
 from models import *
+from forms import *
+from bacnet_control import *
 
 @staff_member_required
 def index(request):
 	return render_to_response('bacnet/index.html', { }, context_instance=RequestContext(request))
+
+@staff_member_required
+def device_property(request, device_id, property_id):
+	control = BacnetControl(settings.BACNET_BIN_DIR)
+	try:
+		value = control.read_analog_output(device_id, property_id)
+	except:
+		logging.exception('Could not read the analog output for bacnet device %s property %s' % (device_id, property_id))
+		return HttpResponseServerError('Could not read the analog output for bacnet device %s property %s\n\n%s' % (device_id, property_id, sys.exc_info()[1]))
+
+	device_property_form = DevicePropertyForm(data={'property_value':value})
+
+	if request.method == 'POST':
+		device_property_form = DevicePropertyForm(request.POST)
+		if device_property_form.is_valid():
+			new_value = device_property_form.cleaned_data['property_value']
+			try:
+				control.write_analog_output_int(device_id, property_id, int(new_value))
+			except:
+				logging.exception('Could not write the posted value (%s) for bacnet device %s property %s' % (new_value, device_id, property_id))
+				return HttpResponseServerError('Could not write the posted value (%s) for bacnet device %s property %s\n\n%s' % (new_value, device_id, property_id, sys.exc_info()[1]))
+			try:
+				value = control.read_analog_output(device_id, property_id)
+			except:
+				logging.exception('Could not read the analog output for bacnet device %s property %s' % (device_id, property_id))
+				return HttpResponseServerError('Could not read the analog output for bacnet device %s property %s\n\n%s' % (device_id, property_id, sys.exc_info()[1]))
+
+	return render_to_response('bacnet/device_property.html', {'device_id':device_id, 'property_id':property_id, 'device_property_form':device_property_form}, context_instance=RequestContext(request))
