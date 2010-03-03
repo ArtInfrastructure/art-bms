@@ -17,6 +17,7 @@ class BacnetControl:
 		self.bin_dir_path = bin_dir_path
 
 	def get_bin_path(self, bin_name):
+		bin_name = '%s%s' % (bin_name, settings.BACNET_EXECUTABLE_EXTENSION)
 		bin_path = os.path.join(self.bin_dir_path, bin_name)
 		if not os.path.exists(bin_path):
 			raise IOError('Bacnet bin does not exist: %s' % bin_path)

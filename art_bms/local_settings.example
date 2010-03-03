@@ -3,6 +3,7 @@ ADMINS = ( ('Your Name', 'you@example.com'), )
 MANAGERS = ADMINS
 
 BACNET_BIN_DIR = '/usr/local/src/bacnet-stack-0.5.3/bin'
+BACNET_EXECUTABLE_EXTENSION = '' # empty for unix, .exe for windows
 
 LOGGING_NAME = '/tmp/art-bms.log'
 
